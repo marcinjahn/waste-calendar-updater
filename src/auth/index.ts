@@ -1,1 +1,1 @@
-export * from './oauth.js';
+export * from './service-account.js';

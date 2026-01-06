@@ -1,12 +1,12 @@
 import { google, calendar_v3 } from 'googleapis';
-import { OAuth2Client } from 'google-auth-library';
+import { BaseExternalAccountClient, OAuth2Client, JWT } from 'google-auth-library';
 import { config } from '../config/index.js';
 
 export class CalendarClient {
   private calendar: calendar_v3.Calendar;
   private calendarId: string;
 
-  constructor(authClient: OAuth2Client) {
+  constructor(authClient: BaseExternalAccountClient | OAuth2Client | JWT) {
     this.calendar = google.calendar({ version: 'v3', auth: authClient });
     this.calendarId = config.CALENDAR_ID;
   }

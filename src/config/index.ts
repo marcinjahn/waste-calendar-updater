@@ -1,14 +1,11 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
-import path from 'path';
 
 dotenv.config();
 
 const envSchema = z.object({
-  GOOGLE_CLIENT_ID: z.string().min(1, 'GOOGLE_CLIENT_ID is required'),
-  GOOGLE_CLIENT_SECRET: z.string().min(1, 'GOOGLE_CLIENT_SECRET is required'),
+  SERVICE_ACCOUNT_KEY_PATH: z.string().min(1, 'SERVICE_ACCOUNT_KEY_PATH is required'),
   CALENDAR_ID: z.string().min(1, 'CALENDAR_ID is required'),
-  REDIRECT_URI: z.string().url().default('http://localhost:3000/oauth2callback'),
 });
 
 let cachedConfig: z.infer<typeof envSchema> | null = null;
@@ -38,21 +35,13 @@ export function getConfig() {
 }
 
 export const config = {
-  get GOOGLE_CLIENT_ID() {
-    return getConfig().GOOGLE_CLIENT_ID;
-  },
-  get GOOGLE_CLIENT_SECRET() {
-    return getConfig().GOOGLE_CLIENT_SECRET;
+  get SERVICE_ACCOUNT_KEY_PATH() {
+    return getConfig().SERVICE_ACCOUNT_KEY_PATH;
   },
   get CALENDAR_ID() {
     return getConfig().CALENDAR_ID;
   },
-  get REDIRECT_URI() {
-    return getConfig().REDIRECT_URI;
-  },
 };
-
-export const CREDENTIALS_PATH = path.join(process.cwd(), '.credentials', 'token.json');
 
 export const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 
