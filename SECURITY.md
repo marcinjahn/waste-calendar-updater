@@ -5,6 +5,7 @@ This document explains how to securely configure this repository to run the wast
 ## Overview
 
 The application requires two sensitive pieces of information:
+
 1. **CALENDAR_ID**: Your Google Calendar ID
 2. **SERVICE_ACCOUNT_KEY_JSON**: Your Google Service Account credentials (JSON format)
 
@@ -36,6 +37,7 @@ These are stored as **GitHub repository secrets**, which are encrypted and only 
 3. Click **Add secret**
 
 Example of what the service account JSON looks like:
+
 ```json
 {
   "type": "service_account",
@@ -65,23 +67,14 @@ The workflow is configured to run **manually only** for security and cost contro
 6. Click **Run workflow**
 
 The workflow will:
+
 - Check out your repository
 - Install dependencies
 - Build the application
 - Run the sync with the specified calendar file
 - Use the encrypted secrets for authentication
 
-## Security Best Practices
-
-### ✅ What Makes This Secure
-
-1. **Secrets are encrypted**: GitHub encrypts secrets at rest and only exposes them during workflow execution
-2. **Not visible in logs**: Secret values are masked in workflow logs
-3. **Repository-scoped**: Only workflows in **your** repository can access these secrets
-4. **Branch protection**: You can configure branch protection to prevent unauthorized workflow changes
-5. **No secrets in code**: The `.env` file and service account JSON files are in `.gitignore`
-
-### ✅ Additional Security Measures
+### Additional Security Measures
 
 1. **Enable Branch Protection** (Recommended):
    - Go to **Settings** → **Branches**
@@ -103,23 +96,18 @@ The workflow will:
    - Go to **Settings** → **Actions** → **General**
    - Under "Fork pull request workflows", ensure appropriate settings are selected
 
-### ⚠️ Important: What NOT to Do
-
-1. ❌ **Never commit** `.env` files or service account JSON files to the repository
-2. ❌ **Never hardcode** secrets in your code or workflow files
-3. ❌ **Never share** your GitHub repository secrets with others
-4. ❌ **Never log** secret values in your code (they will be masked, but still avoid it)
-
 ## Verifying Security
 
 ### Check What's Ignored by Git
 
 Run this command to verify sensitive files are not tracked:
+
 ```bash
 git status --ignored
 ```
 
 You should see:
+
 - `.env`
 - Any `*service-account*.json` files
 - Any `*credentials*.json` files
@@ -127,6 +115,7 @@ You should see:
 ### Check for Leaked Secrets
 
 Before pushing any commits, run:
+
 ```bash
 git diff --cached
 ```
@@ -153,25 +142,7 @@ If you suspect your secrets have been compromised:
 ### Who Can Run the Workflow?
 
 By default, only users with **write access** to the repository can:
+
 - Manually trigger workflows
 - Modify workflow files
 - View secret names (but not values)
-
-### Making the Repository Public Safely
-
-You can make the repository public because:
-1. Secrets are stored separately and not in the code
-2. The workflow only runs when triggered by you (manually or on schedule)
-3. External contributors cannot access secrets in pull requests from forks
-
-However, be aware:
-- Anyone can see your **workflow configuration** (but not the secret values)
-- Anyone can see your **waste calendar data** (if that's public information, this is fine)
-
-## Questions?
-
-If you're unsure about any security aspect:
-1. Keep the repository **private** until you're confident
-2. Test the workflow thoroughly
-3. Review the GitHub Actions logs to ensure no secrets are exposed
-4. Consider using GitHub's security features like Dependabot and CodeQL
