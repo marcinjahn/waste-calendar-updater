@@ -1,0 +1,39 @@
+{
+  "name": "waste-calendar-updater",
+  "version": "1.0.0",
+  "description": "CLI tool to sync waste collection schedules to Google Calendar",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "waste-sync": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/index.js",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [
+    "calendar",
+    "google-calendar",
+    "waste-collection",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "cli-table3": "^0.6.3",
+    "commander": "^12.0.0",
+    "date-fns": "^3.0.6",
+    "dotenv": "^16.3.1",
+    "googleapis": "^131.0.0",
+    "open": "^10.0.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  }
+}
