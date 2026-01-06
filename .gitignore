@@ -12,6 +12,9 @@ dist/
 # Credentials
 .credentials/
 token.json
+*service-account*.json
+*credentials*.json
+home-automation-*.json
 
 # Logs
 *.log

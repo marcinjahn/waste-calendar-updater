@@ -7,7 +7,8 @@ A modern Node.js CLI tool built with TypeScript to automate waste collection sch
 - **Automated Sync**: Sync waste collection schedules to Google Calendar
 - **Smart Idempotency**: Prevents duplicate events by checking existing calendar entries
 - **6 PM Reminders**: Sets popup reminders at 6:00 PM the evening before collection
-- **OAuth 2.0 Authentication**: Secure Google Calendar API access with local token storage
+- **Service Account Authentication**: Secure Google Calendar API access using service accounts
+- **GitHub Actions Support**: Run automatically via GitHub Actions with encrypted secrets
 - **Formatted Output**: Beautiful CLI tables showing sync results
 - **Type-Safe**: Built with TypeScript in strict mode with Zod validation
 
@@ -15,18 +16,35 @@ A modern Node.js CLI tool built with TypeScript to automate waste collection sch
 
 - Node.js v20 or higher
 - Google Cloud Project with Calendar API enabled
-- OAuth 2.0 credentials (Client ID and Secret)
+- Service Account with Calendar API permissions
 
 ## Google Cloud Setup
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select an existing one
-3. Enable the Google Calendar API
-4. Create OAuth 2.0 credentials:
-   - Go to "Credentials" → "Create Credentials" → "OAuth client ID"
-   - Application type: "Web application"
-   - Add authorized redirect URI: `http://localhost:3000/oauth2callback`
-5. Download the credentials and note the Client ID and Client Secret
+3. Enable the Google Calendar API:
+   - Go to "APIs & Services" → "Library"
+   - Search for "Google Calendar API"
+   - Click "Enable"
+4. Create a Service Account:
+   - Go to "IAM & Admin" → "Service Accounts"
+   - Click "Create Service Account"
+   - Give it a name (e.g., "waste-calendar-sync")
+   - Click "Create and Continue"
+   - Skip granting roles (click "Continue")
+   - Click "Done"
+5. Create a Service Account Key:
+   - Click on the service account you just created
+   - Go to the "Keys" tab
+   - Click "Add Key" → "Create new key"
+   - Choose JSON format
+   - Click "Create" - the key file will download
+6. Share your Google Calendar with the service account:
+   - Open Google Calendar
+   - Go to Settings → Select your calendar
+   - Scroll to "Share with specific people"
+   - Add the service account email (e.g., `waste-calendar-sync@your-project.iam.gserviceaccount.com`)
+   - Give it "Make changes to events" permission
 
 ## Installation
 
@@ -36,20 +54,30 @@ npm install
 
 ## Configuration
 
-1. Copy the example environment file:
+### Local Development
+
+1. Create a `.env` file in the project root:
 
 ```bash
-cp .env.example .env
+touch .env
 ```
 
-2. Edit `.env` and fill in your credentials:
+2. Add your credentials to `.env`:
 
 ```env
-GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=your-client-secret
-CALENDAR_ID=your-email@gmail.com
-REDIRECT_URI=http://localhost:3000/oauth2callback
+SERVICE_ACCOUNT_KEY_PATH=/path/to/your/service-account-key.json
+CALENDAR_ID=your-calendar-id@group.calendar.google.com
 ```
+
+**Note**: The `CALENDAR_ID` is found in Google Calendar settings under "Integrate calendar" → "Calendar ID"
+
+### GitHub Actions Deployment
+
+For running via GitHub Actions, see [SECURITY.md](./SECURITY.md) for detailed instructions on:
+- Setting up GitHub repository secrets
+- Configuring the workflow
+- Security best practices
+- Keeping your repository public safely
 
 ## Usage
 
@@ -73,11 +101,11 @@ node dist/index.js --file ./calendar_2026.json
 
 ### First Run
 
-On the first run, the application will:
-1. Open your browser for Google OAuth authentication
-2. Ask you to authorize calendar access
-3. Save the refresh token to `.credentials/token.json`
-4. Subsequent runs will use the saved token
+On the first run, ensure:
+1. Your `.env` file is properly configured
+2. The service account key file exists at the specified path
+3. The service account has been granted access to your calendar
+4. The calendar ID is correct
 
 ## Calendar Data Format
 
@@ -165,9 +193,22 @@ npm run dev
 
 ## Security Notes
 
-- The `.credentials/` directory is git-ignored
-- Never commit your `.env` file or OAuth tokens
-- The refresh token allows access to your calendar - keep it secure
+- The `.env` file and service account keys are git-ignored
+- Never commit your `.env` file or service account JSON files
+- The service account key allows access to your calendar - keep it secure
+- For GitHub Actions deployment, use GitHub Secrets (see [SECURITY.md](./SECURITY.md))
+- The repository can be safely made public if secrets are properly configured
+
+## GitHub Actions
+
+This project includes a GitHub Actions workflow for automated calendar syncing:
+
+- **Workflow**: `.github/workflows/sync-calendar.yml`
+- **Trigger**: Manual only (workflow_dispatch)
+- **Input**: Calendar file name (e.g., `calendar_2026.json`)
+- **Secrets Required**: `CALENDAR_ID` and `SERVICE_ACCOUNT_KEY_JSON`
+
+See [SECURITY.md](./SECURITY.md) for complete setup instructions.
 
 ## License
 

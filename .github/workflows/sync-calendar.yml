@@ -1,0 +1,37 @@
+name: Sync Waste Calendar
+
+on:
+  # Run on manual trigger only
+  workflow_dispatch:
+    inputs:
+      calendar_file:
+        description: 'Calendar JSON file name (e.g., calendar_2026.json)'
+        required: true
+        default: 'calendar_2026.json'
+        type: string
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Sync calendar
+        env:
+          CALENDAR_ID: ${{ secrets.CALENDAR_ID }}
+          SERVICE_ACCOUNT_KEY_JSON: ${{ secrets.SERVICE_ACCOUNT_KEY_JSON }}
+        run: node dist/index.js --file ${{ inputs.calendar_file }}

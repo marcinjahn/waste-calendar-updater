@@ -6,16 +6,25 @@ import { config, SCOPES } from '../config/index.js';
 export class AuthManager {
   async getAuthenticatedClient(): Promise<JWT> {
     try {
-      const keyFilePath = config.SERVICE_ACCOUNT_KEY_PATH;
+      let keyData: { client_email: string; private_key: string };
 
-      await fs.access(keyFilePath);
-
-      const keyFileContent = await fs.readFile(keyFilePath, 'utf-8');
-      const keyData = JSON.parse(keyFileContent);
+      if (config.SERVICE_ACCOUNT_KEY_JSON) {
+        // Use SERVICE_ACCOUNT_KEY_JSON from environment variable (for GitHub Actions)
+        keyData = JSON.parse(config.SERVICE_ACCOUNT_KEY_JSON);
+      } else if (config.SERVICE_ACCOUNT_KEY_PATH) {
+        // Use SERVICE_ACCOUNT_KEY_PATH from file system (for local development)
+        await fs.access(config.SERVICE_ACCOUNT_KEY_PATH);
+        const keyFileContent = await fs.readFile(config.SERVICE_ACCOUNT_KEY_PATH, 'utf-8');
+        keyData = JSON.parse(keyFileContent);
+      } else {
+        throw new Error(
+          'Neither SERVICE_ACCOUNT_KEY_JSON nor SERVICE_ACCOUNT_KEY_PATH is configured'
+        );
+      }
 
       if (!keyData.client_email || !keyData.private_key) {
         throw new Error(
-          'Invalid service account key file: missing client_email or private_key'
+          'Invalid service account key: missing client_email or private_key'
         );
       }
 
